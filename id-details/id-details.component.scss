@@ -1,0 +1,58 @@
+.input {
+    display: none;
+}
+
+.mat-button {
+    min-width: 0px;
+}
+::ng-deep.custom-dialog-container mat-dialog-container {
+    background: unset;
+    box-shadow: unset;
+}
+.close-button {
+    float: right;
+    top: 40px;
+    right: 12px;
+    color: #000;
+    background: #ebebeb;
+}
+
+.img {
+    height: 550px;
+    width: 850px;
+    border: 1px solid #fff;
+}
+
+.inputbox {
+    display: none;
+}
+
+.custom-dialog-container mat-dialog-container {
+    background: unset;
+    box-shadow: unset;
+}
+
+.custom-dialog-container.mat-dialog-container {
+    display: block;
+    padding: 0px !important;
+    border-radius: 0px;
+    box-sizing: border-box;
+    overflow: auto;
+    outline: 0;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    max-height: inherit;
+}
+
+// .mat-dialog-container {
+//     display: block;
+//     padding: 24px;
+//     box-sizing: border-box;
+//     overflow: auto;
+//     outline: 0;
+//     width: 100%;
+//     height: 100%;
+//     min-height: inherit;
+//     max-height: inherit;
+// }

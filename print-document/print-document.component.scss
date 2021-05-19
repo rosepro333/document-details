@@ -1,0 +1,76 @@
+// .main-wrap{
+//   border:3px solid black;
+//   margin: 25px;
+//   padding: 25px 25px 30px 0px;
+//   background: #ffffff;
+// }
+
+
+
+.main-wrap{
+  border:3px solid black;
+  margin: 25px;
+  padding: 25px 25px 30px 0px;
+  background: #ffffff;
+  .filed-left{
+    padding:15px;
+    padding: 0px 0px 0px 25px;
+    font-family: Roboto;
+    font-weight: 400;
+    font-style: normal;
+    font-size:18px;
+    // line-height:16px;
+    .main-header{
+      font-weight: bold;
+    }
+
+  }
+  .docID{
+    font-weight:500;
+  }
+  .filed1-left{
+    padding: 10px 0px 10px 25px;
+    font-family: Roboto;
+    font-weight: 400;
+    font-style: normal;
+    font-size:18px;
+    line-height:16px;
+  }
+  .rifht-filed-doc-id{
+    font-weight: 500;
+    font-family: Roboto;
+    font-size:18px;
+    line-height:16px;
+  }
+  .left-wrap{
+    padding: 5px 0px 0px 0px;
+  }
+  .liveliness{
+    width:100px;
+    border-radius: 5px;
+  }
+}
+.details{
+  padding: 0px 0px 0px 25px;
+  font-family: Roboto;
+  font-weight: 400;
+  font-style: bold;
+  font-size:18px;
+  line-height:16px;
+}
+.idCard{
+  width:400px;
+  border-radius:12px;
+  padding-bottom:20px;
+}
+.header{
+  margin-left: -5px;
+  padding-top: 10px;
+  font-size:18px;
+  padding-bottom:0px;
+  font-weight:600;
+}
+.printButton{
+  margin-top: 15px;
+  padding:5px 15px 5px 15px;
+}

@@ -1,0 +1,4 @@
+
+<button fxLayoutAlign='end' class="close-button close" mat-button (click)="clear()">X</button>
+<img matInput class='img' [src]="(img!== null && img!==undefined)? isString(img) === true ? img : 'https://firebasestorage.googleapis.com/v0/b/flexverify.appspot.com/o'+img+'?alt=media' : null"  name="img">
+

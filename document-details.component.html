@@ -1,0 +1,540 @@
+<mat-drawer-container autosize id="id-card1">
+    <mat-drawer #rightDrawer mode="overlay" position='end' class="right-side-drawer">
+        <div *ngIf="isDocumentDetails">
+            <mat-toolbar fxLayout="row wrap" fxLayoutAlign="space-between center" class="header">
+                <div class="madrawer-head">
+                    Document Details
+                </div>
+                <div class="header-buttons">
+                    <button mat-icon-button (click)="rightDrawer.close()" class="close-button">
+            <mat-icon>close</mat-icon>
+          </button>
+                </div>
+            </mat-toolbar>
+            <div class="drawer-data" fxLayout="column" *ngFor="let doc of scanDocument; let isFirst = first; let i=index">
+                <div class="data-wrap">
+                    <div class="title">First Name</div>
+                    <div class="value">
+                        {{ document.First_Name }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Last Name</div>
+                    <div class="value">
+                        {{ document.Last_Name }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Nationality</div>
+                    <div class="value">
+                        {{ document.Nationality }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Date of Birth</div>
+                    <div class="value">
+                        {{ document.DOB | date: "shortDate" }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Building No</div>
+                    <div class="value">
+                        {{ document.Building_No }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Street Name</div>
+                    <div class="value">
+                        {{ document.Street_Name }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">City</div>
+                    <div class="value">
+                        {{ document.City }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Postal Code</div>
+                    <div class="value">
+                        {{ document.postalcode }}
+                    </div>
+                </div>
+                <div class="data-wrap">
+                    <div class="title">Mode</div>
+                    <div class="value">
+                        {{ document.Mode }}
+                    </div>
+                </div>
+                <div fxLayout="row wrap" class="regenerateURL"   fxLayoutAlign="center center">
+                    <button mat-button class="primary-button" (click)="clickGenerate()" >
+                      Regenerate Url
+                    </button>
+                <!-- <button mat-icon-button  class="close-button" *ngIf="verificaionUrl" (click)="clearUrl()">
+                  <mat-icon>close</mat-icon>
+                </button> -->
+            </div>
+            <div fxLayout="row wrap" fxLayoutAlign="center center" *ngIf="verificaionUrl">
+              <ngx-qrcode [elementType]="elementType" [value]="verificaionUrl" cssClass="aclass" errorCorrectionLevel="L">
+              </ngx-qrcode>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="space-between center" *ngIf="verificaionUrl">
+              <div class="url-wrap">
+                KYC verification url:
+                <span class="url">{{ verificaionUrl |limitTo:'30' }}</span>
+              </div>
+              <button mat-icon-button [cdkCopyToClipboard]="verificaionUrl" matTooltip="copy url" matTooltipPosition="right">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+            <mat-form-field appearance="outline" fxFill *ngIf="verificaionUrl">
+              <mat-label>Email To</mat-label>
+              <input matInput type="email" name="emailId" [(ngModel)]="emailId" (keydown.enter)="sendEmail()" >
+              <button mat-button *ngIf="emailId" matSuffix mat-icon-button aria-label="Send" (click)="sendEmail()">
+                <mat-icon>send</mat-icon>
+              </button>
+            </mat-form-field>
+            </div>
+         
+        </div>
+        <div *ngIf="isScanHistory">
+            <mat-toolbar fxLayout="row wrap" fxLayoutAlign="space-between center" class="header">
+                <div class="madrawer-head">
+                    Scan History
+                </div>
+                <div class="header-buttons">
+                    <button mat-icon-button (click)="rightDrawer.close()" class="close-button">
+            <mat-icon>close</mat-icon>
+          </button>
+                </div>
+            </mat-toolbar>
+            <div class="drawer-data" fxLayout="column">
+                <table mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="scanId">
+                        <th mat-header-cell *matHeaderCellDef> Scan ID. </th>
+                        <td mat-cell *matCellDef="let element"> {{element.Scan_ID}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="scanDate">
+                        <th mat-header-cell *matHeaderCellDef> Scan Date </th>
+                        <td mat-cell *matCellDef="let element"> {{element.createdAt | date: "MMM dd,yyyy hh:mm:ss a"}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef> Status </th>
+                        <td mat-cell *matCellDef="let element"> {{element.scanResultStatus}} </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="nextScan(row._id)"></tr>
+                </table>
+            </div>
+        </div>
+        <div *ngIf="isScanResult">
+            <mat-toolbar fxLayout="row wrap" fxLayoutAlign="space-between center" class="header">
+                <div class="madrawer-head">
+                    Scan Result
+                </div>
+                <div class="header-buttons">
+                    <button mat-icon-button (click)="rightDrawer.close()" class="close-button">
+            <mat-icon>close</mat-icon>
+          </button>
+                </div>
+            </mat-toolbar>
+            <form class="drawer-data scan-result-wrap" fxLayout="column" (ngSubmit)="submitScanResult(result)" #result="ngForm">
+                <div fxLayout="row" class="top">
+                    <div fxFlex="150px" fxLayoutAlign="center center">
+                        <div class="shortname">{{ document.First_Name | shortName}}</div>
+                    </div>
+                    <div fxFlex>
+                        <div class="name">{{ document.First_Name }} {{ document.Last_Name }}</div>
+                        <div class="data-wrap">
+                            <div class="title">Document ID</div>
+                            <div class="value">
+                                {{ document.Document_ID }}
+                            </div>
+                        </div>
+                        <div class="data-wrap">
+                            <div class="title">Scan ID</div>
+                            <div class="value">
+                                {{scanIdDetails.Scan_ID}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="column">
+                    <mat-form-field appearance="outline" fxFill>
+                        <mat-label>ID Card Status</mat-label>
+                        <mat-select name="ID_Type" [disabled]='!resutData.isActive' (selectionChange)="SelectType('ID_Type',$event.value)" [(ngModel)]='resutData.idCardStatus'>
+                            <mat-option *ngFor="let type of idCardType" [value]="type.value">{{ type.name }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" *ngIf="isIdStatus">
+                        <mat-label>Comment</mat-label>
+                        <textarea matInput [disabled]='!resutData.isActive' name="idCardTypeComment" rows="3" [(ngModel)]='resutData.idCardComment'></textarea>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" fxFill>
+                        <mat-label>Address Status</mat-label>
+                        <mat-select name="Address" [disabled]='!resutData.isActive' (selectionChange)="SelectType('Address',$event.value)" [(ngModel)]='resutData.addressStatus'>
+                            <mat-option *ngFor="let i of addressType" [value]="i.value">{{i.name}}</mat-option>
+
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" *ngIf="isAddressStatus">
+                        <mat-label>Comment</mat-label>
+                        <textarea matInput name="addressComments" rows="3" [disabled]='!resutData.isActive' [(ngModel)]='resutData.addressStatusComment'></textarea>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" fxFill>
+                        <mat-label>Live Check</mat-label>
+                        <mat-select name="LiveCheck" [disabled]='!resutData.isActive' (selectionChange)="SelectType('LiveCheck',$event.value)" [(ngModel)]='resutData.liveCheckingStatus'>
+                            <mat-option [value]="i.value" *ngFor="let i of liveCheckType">{{i.name}}</mat-option>
+
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" *ngIf="isLiveCheck">
+                        <mat-label>Comment</mat-label>
+                        <textarea matInput name="liveCheckComments" [disabled]='!resutData.isActive' rows="3" [(ngModel)]='resutData.livecheckStatusComment'></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Selfie Match Percentage</mat-label>
+                        <input matInput type="number" [disabled]='!resutData.isActive' min="0" max="100" name="selefieMatchPercengates" [(ngModel)]='resutData.selfiePhotoMatchStatus'>
+                        <mat-icon matSuffix>%</mat-icon>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" fxFill>
+                        <mat-label>Scan Result</mat-label>
+                        <mat-select name="scanResult" [disabled]='!resutData.isActive' (selectionChange)="SelectType('scanResult',$event.value)" [(ngModel)]='resutData.scanResultStatus'>
+                            <mat-option *ngFor="let i of scanResultType" [value]="i.value">{{i.name}}</mat-option>
+
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Comment</mat-label>
+                        <textarea [disabled]='!resutData.isActive' matInput name="scanResultComment" rows="3" [(ngModel)]='resutData.scanResultComment'></textarea>
+                    </mat-form-field>
+                    <div class="sticky-bottom-bar">
+                        <div class="button-wrap">
+                            <button mat-button type="button" class="cancel-button" (click)="rightDrawer.close()">
+                cancel
+              </button>
+                            <button mat-button class="primary-button" [disabled]='!resutData.isActive' type="submit" (click)="submitScanResult()">
+                Save
+              </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div *ngIf="isComments">
+            <mat-toolbar fxLayout="row wrap" fxLayoutAlign="space-between center" class="header">
+                <div>
+                    Comments
+                </div>
+                <div class="header-buttons">
+                    <button mat-icon-button (click)="rightDrawer.close()" class="close-button">
+            <mat-icon>close</mat-icon>
+          </button>
+                </div>
+            </mat-toolbar>
+            <div class="drawer-data comment-history" fxLayout="column" *ngFor="let comment of commentsData">
+                <mat-list-item *ngFor="let j of comment.data" class="comment">
+                    <div fxFlex="92px" fxLayoutAlign="start start">
+                        <div class="shortname">{{j.username | shortName}}</div>
+                    </div>
+                    <div fxFlex>
+                        <div class="comment-text">{{j.text}}</div>
+                        <div class="comment-by-time">
+                            Posted By {{j.username }} on {{j.createdAt | date: "MMM dd yyyy, hh:mm:ss a"}} </div>
+                    </div>
+                </mat-list-item>
+            </div>
+        </div>
+
+    </mat-drawer>
+    <mat-drawer-content>
+        <mat-toolbar fxLayout="row wrap" fxLayoutAlign="space-between center" class="header">
+            <div fxLayout="row" fxLayoutAlign="start center">
+                <!-- [routerLink]="['/documents']" -->
+                <button mat-icon-button (click)="back()">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div class="name">{{ document.First_Name }} {{ document.Last_Name }}</div>
+            </div>
+            <div class="header-doc-id-wrap">Document Id: <span class="header-doc-id">{{ document.Document_ID }}</span></div>
+            <div class="header-buttons">
+                <button mat-button class="bordered-light-green-button" (click)="rightDrawer.open(); open('document-details')">More Info</button>
+                <button mat-button class="bordered-light-green-button" (click)="rightDrawer.open(); open('scan-history')">
+          Scan History
+        </button>
+            </div>
+        </mat-toolbar>
+        <div fxFlexLayout="row" *ngFor="let doc of scanDocument; let isFirst = first; let i=index">
+            <section fxFlex="25" class="left-section">
+
+                <form class="panel-body" (ngSubmit)="onSave(IdForm, doc._id)" #IdForm="ngForm">
+
+                    <mat-tab-group >
+                        <mat-tab label="ID Details">
+                            <div fxLayout="column">
+
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Id type</mat-label>
+                                    <mat-select name="ID_Type" [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus==='Submitted')?false:true" [(ngModel)]="doc.ID_Type" (selectionChange)="SelectIdType($event)">
+                                        <mat-option *ngFor="let type of documentIdType" [value]="type.name">{{ type.name }}</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Id number</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="Id #" name="idCardNo" [(ngModel)]="doc.idCardNo" />
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>First name</mat-label>
+                                    <!--  -->
+                                    <input matInput [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="First name" name="firstName" [(ngModel)]="doc.firstName" />
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Last Name</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="Last name" name="lastName" [(ngModel)]="doc.lastName" />
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline"  (click)="dobPicker.open()" fxFill >
+                                    <!-- <mat-form-field appearance="outline" fxFlex="50"  (click)="picker.open()"></mat-form-field> -->
+                                    <mat-label>Date of birth</mat-label>
+                                    <input matInput readonly [matDatepicker]="dobPicker" placeholder="Date of birth" name="dob" [(ngModel)]="doc.dob" />
+                                    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                                    <!-- <mat-datepicker [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" #dobPicker disabled="false"></mat-datepicker> -->
+                                    <mat-datepicker #dobPicker></mat-datepicker>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline"  (click)="idExpirypicker.open()" fxFill>
+                                    <mat-label>Id expiry</mat-label>
+                                    <input matInput readonly [matDatepicker]="idExpirypicker" placeholder="Id Expiry" name="idExpiryDate" [(ngModel)]="doc.idExpiryDate" />
+                                    <mat-datepicker-toggle matSuffix [for]="idExpirypicker"></mat-datepicker-toggle>
+                                    <!-- <mat-datepicker [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" #idExpirypicker disabled="false"></mat-datepicker> -->
+                                    <mat-datepicker #idExpirypicker></mat-datepicker>
+                                </mat-form-field>
+
+                                 <mat-form-field appearance="outline" (click)="idIssueDate.open()" fxFill>
+                                    <mat-label>Issue Date</mat-label>
+                                    <input matInput readonly [matDatepicker]="idIssueDate" placeholder="Id Expiry" name="idIssueDate" [(ngModel)]="doc.idIssueDate" />
+                                    <mat-datepicker-toggle matSuffix [for]="idIssueDate"></mat-datepicker-toggle>
+                                    <!-- <mat-datepicker [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" #idIssueDate disabled="false"></mat-datepicker> -->
+                                    <mat-datepicker #idIssueDate></mat-datepicker>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Nationality</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="Nationality" name="nationality" [(ngModel)]="doc.nationality" />
+                                </mat-form-field>
+
+                            </div>
+                        </mat-tab>
+                        <mat-tab label="Address" >
+                            <div fxLayout="column">
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Building No</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="Building No" name="building_No" [(ngModel)]="doc.Building_No" />
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Street name</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="Street Name" name="streetName" [(ngModel)]="doc.streetName" />
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>City</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="City" name="city" [(ngModel)]="doc.city" />
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" fxFill>
+                                    <mat-label>Postal code</mat-label>
+                                    <input matInput [disabled]="disabled ||!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" placeholder="Postal Code" name="postalCode" [(ngModel)]="doc.postalCode" />
+                                </mat-form-field>
+                                <!-- <div class="button-wrap"   fxLayoutAlign="center end">
+                                    <button mat-button type="button" *ngIf="accessType!=='3'&&accessType !=='4'" [disabled]="!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" class="cancel-button" (click)="clear()">
+                                      cancel
+                                    </button>
+                                    <button *ngIf="accessType!=='3'&&accessType !=='4'" [disabled]="!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" mat-button class="primary-button" type="submit">
+                                      Save
+                                    </button>
+                                </div> -->
+                            </div>
+                        </mat-tab>
+                    </mat-tab-group>
+                    <div class="sticky-bottom-bar">
+                        <div  class="button-wrap" >
+                          <button mat-button type="button" *ngIf="accessType!=='3'&&accessType !=='4'" [disabled]="!doc.isActive ||(doc.scanResultStatus!=='Submitted')?true:false" class="cancel-button" (click)="clear()">
+                            cancel
+                          </button>
+                          <button *ngIf="accessType!=='3'&&accessType !=='4'" [disabled]="!doc.isActive||(doc.scanResultStatus!=='Submitted')?true:false" mat-button class="primary-button" type="submit">
+                            Save
+                          </button>
+                        </div>
+                    </div>
+                </form>
+
+
+            </section>
+            <section fxFlex="50" class="middle-section">
+                <div class="id-card-wrap">
+                    <div class="sub-section-header">
+                        Identity Card
+                    </div>
+                    <owl-carousel-o [options]="customOptions">
+                        <ng-container>
+                            <ng-template class="slide" carouselSlide>
+                                <div class="justify-center" class="imageHover">
+                                    <img (click)="overLayImage(doc?.ID_Card_Front)" [src]="doc.ID_Card_Front!= null?isString(doc?.ID_Card_Front) === true ? doc?.ID_Card_Front:'https://firebasestorage.googleapis.com/v0/b/flexverify.appspot.com/o'+doc?.ID_Card_Front+'?alt=media':idCardPlaceholder" />
+                                </div>
+                            </ng-template>
+
+                        </ng-container>
+                        <ng-container>
+                            <ng-template class="slide" carouselSlide>
+
+                                 <div class="justify-center">
+                                      <img (click)="overLayImage(doc?.ID_Card_Back)" [src]="(doc?.ID_Card_Back!== null && doc?.ID_Card_Back!==undefined)?isString(doc?.ID_Card_Back) === true ? doc?.ID_Card_Back: 'https://firebasestorage.googleapis.com/v0/b/flexverify.appspot.com/o'+doc?.ID_Card_Back+'?alt=media':idCardPlaceholder" />
+                                </div>
+                            </ng-template>
+                        </ng-container>
+                    </owl-carousel-o>
+                </div>
+                <div class="live-photo-wrap">
+                    <div class="sub-section-header">
+                        Live Photo Check
+                    </div>
+                    <div fxLayout="row wrap">
+                        <div fxFlex="50" class="live-photo-match">
+                            <img [src]="(doc?.Selfie_Photo!== null && doc?.Selfie_Photo!==undefined)? isString(doc?.Selfie_Photo) === true ? doc?.Selfie_Photo:'https://firebasestorage.googleapis.com/v0/b/flexverify.appspot.com/o'+doc?.Selfie_Photo+'?alt=media' : imagePlaceHolder"  />
+                            <div class="matching-wrap">
+                                Matching
+                                <span class="matching-value">{{doc?.selfiePhotoMatchStatus}}</span>
+                                <!-- dummy -->
+                                <mat-progress-bar mode="determinate" value="{{doc?.selfiePhotoMatchStatus}}"></mat-progress-bar>
+                            </div>
+                        </div>
+                        <div fxFlex="50" class="live-photos" *ngFor="let i of ((doc.LiveCheck_Photos.length>0)?doc.LiveCheck_Photos:[imagePlaceHolder]) ">
+                            <img [src]="(doc.LiveCheck_Photos.length!==null)? isString(i) === true ? i:'https://firebasestorage.googleapis.com/v0/b/flexverify.appspot.com/o'+i+'?alt=media':null"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="comment-wrapper" fxLayout="column">
+                    <mat-form-field fxFlex="100">
+                        <mat-label>Comment</mat-label>
+                        <textarea [disabled]="disabled ||!doc.isActive" matInput name="comments" [(ngModel)]='comments[i]' rows="3"></textarea>
+
+                    </mat-form-field>
+                    <div class="button-wrap">
+                        <button mat-button color="primary" type="button" (click)="rightDrawer.open(); open('commnets')">
+              View Comment History
+            </button>
+                        <button mat-button class="bordered-light-green-button" [disabled]="disabled ||!doc.isActive" aria-label="Send" (click)="sendComment(doc._id)" type="button">
+              Comment
+            </button>
+                    </div>
+                </div>
+            </section>
+            <section fxFlex="25" class="right-section">
+                <div fxLayout="column" class="top">
+                    <div class="data-wrap">
+                        <div class="title">Scan ID</div>
+                        <div class="value">
+                            <!-- {{ doc.Scan_ID }}   -->
+                            {{scanIdDetails?.Scan_ID}}
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">Submitted Time</div>
+                        <div class="value">
+                            {{scanIdDetails?.updatedAt | date: 'dd-MM-yyyy, HH:mm:ss a'}}
+                            <!--dummy-->
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">Device Signature</div>
+                        <div class="value">
+                            {{ scanIdDetails?.deviceSignature?.browser }} {{ scanIdDetails?.deviceSignature?.browser_version }}
+
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">OS</div>
+                        <div class="value">
+                          {{scanIdDetails?.deviceSignature?.os}}
+
+                        </div>
+                    </div>
+                     <div class="data-wrap" *ngIf= 'scanIdDetails?.deviceSignature?.os_version |dataCheck'>
+                        <div class="title">OS Version</div>
+                        <div class="value">
+                     {{scanIdDetails?.deviceSignature?.os_version |dataCheck}}
+
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">IP Address</div>
+                        <div class="value">
+                            {{ scanIdDetails?.ipAddress }}
+                            <!--dummy-->
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">Mode</div>
+                        <div class="value">
+                            {{ scanIdDetails?.Mode }}
+                        </div>
+                    </div>
+                    <div class="button-wrap1" fxLayout="row" fxLayoutAlign="center end" >
+                        <button *ngIf="accessType!=='3'&&accessType !=='4'" mat-button class="delete-button" (click)="deleteScan(scanIdDetails._id)">
+                          Delete
+                        </button>
+                    </div>
+                </div>
+                <div fxLayout="column" class="bottom">
+                    <div class="sub-section-header">Scan Result</div>
+                    <div class="data-wrap">
+                        <div class="title">Status</div>
+                        <div class="value">
+                            {{scanIdDetails?.scanResultStatus }}
+                            <!--dummy-->
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">ID Card</div>
+                        <div class="value">
+                            {{scanIdDetails?.idCardStatus| scanResult}}
+                            <!--dummy-->
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">Address</div>
+                        <div class="value">
+                            {{scanIdDetails?.addressStatus |scanResult}} 
+                            <!-- {{scanIdDetails?.Building_No}} {{scanIdDetails?.streetName}} {{scanIdDetails?.city}} -->
+                            <!--dummy-->
+                        </div>
+                    </div>
+                    <div class="data-wrap">
+                        <div class="title">Live Check</div>
+                        <div class="value">
+                            {{scanIdDetails?.liveCheckingStatus |scanResult}}
+                            <!-- N/A -->
+                            <!--dummy-->
+                        </div>
+                    </div>
+                    <div class="button-wrap" fxLayout="row" fxLayoutAlign="center center" >
+                        <button mat-button type="button" [disabled]="!doc.isActive" *ngIf="accessType!=='3'&&accessType !=='4'" (click)="rightDrawer.open(); open('scan-result')" class="bordered-light-green-button">
+              <i class="material-icons">edit</i>
+              Edit
+            </button>
+            
+            <button [disabled]="!doc.isActive" mat-button class="primary-button" type="button" (click)="donwLoad(scanIdDetails)">
+              <i class="material-icons">save_alt</i>
+              Download
+            </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </mat-drawer-content>
+</mat-drawer-container>
